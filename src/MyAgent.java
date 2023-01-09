@@ -8,6 +8,8 @@ import jade.domain.FIPAAgentManagement.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class MyAgent extends Agent {
 	protected void setup () {
@@ -49,6 +51,11 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 		} else {
 			String ontology = message.getOntology();
 			String content = message.getContent();
+
+			var wordsDict = new HashMap<String, String>();
+			var wordId = UUID.randomUUID().toString();
+			wordsDict.put(wordId, content);
+
 			int performative = message.getPerformative();
 			if (performative == ACLMessage.REQUEST)
 			{
@@ -69,6 +76,7 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 						forward.addReceiver(new AID(foundAgent, AID.ISLOCALNAME));
 						forward.setContent(content);
 						forward.setOntology(ontology);
+						forward.setReplyWith(wordId);
 						myAgent.send(forward);
 					}
 				}
@@ -80,7 +88,8 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 			}
 			else
 			{	//when it is an answer
-				myAgent.displayHtmlResponse(content);
+
+				myAgent.displayHtmlResponse(content + "Message ID: " + message.getInReplyTo());
 			}
 		}
 	}

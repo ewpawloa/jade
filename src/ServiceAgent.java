@@ -96,7 +96,10 @@ class DictionaryCyclicBehaviour extends CyclicBehaviour
 			//process the incoming message
 			String content = message.getContent();
 			String ontology = message.getOntology();
+			var wordId = message.getReplyWith();
+
 			ACLMessage reply = message.createReply();
+			reply.setInReplyTo(wordId);
 			reply.setPerformative(ACLMessage.INFORM);
 			String response = "";
 			try
