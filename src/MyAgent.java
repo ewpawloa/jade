@@ -38,6 +38,7 @@ public class MyAgent extends Agent {
 
 class MyCyclicBehaviour extends CyclicBehaviour {
 	MyAgent myAgent;
+	private String ServiceName = "dictionary";
 	public MyCyclicBehaviour(MyAgent myAgent) {
 		this.myAgent = myAgent;
 	}
@@ -54,7 +55,7 @@ class MyCyclicBehaviour extends CyclicBehaviour {
 				//I cannot answer but I will search for someone who can
 				DFAgentDescription dfad = new DFAgentDescription();
 				ServiceDescription sd = new ServiceDescription();
-				sd.setName(ontology);
+				sd.setName(ServiceName);
 				dfad.addServices(sd);
 				try
 				{

@@ -9,28 +9,24 @@ import java.net.*;
 import java.io.*;
 
 public class ServiceAgent extends Agent {
+	private String ServiceName = "dictionary";
 	protected void setup () {
 		//services registration at DF
 		DFAgentDescription dfad = new DFAgentDescription();
 		dfad.setName(getAID());
 		//service no 1
 		ServiceDescription sd1 = new ServiceDescription();
+
 		sd1.setType("answers");
-		sd1.setName("wordnet");
-		//service no 2
-		ServiceDescription sd2 = new ServiceDescription();
-		sd2.setType("answers");
-		sd2.setName("dictionary");
-		//add them all
+		sd1.setName(this.ServiceName);
+
 		dfad.addServices(sd1);
-		dfad.addServices(sd2);
 		try {
 			DFService.register(this,dfad);
 		} catch (FIPAException ex) {
 			ex.printStackTrace();
 		}
-		
-		addBehaviour(new WordnetCyclicBehaviour(this));
+
 		addBehaviour(new DictionaryCyclicBehaviour(this));
 		//doDelete();
 	}
@@ -81,42 +77,6 @@ public class ServiceAgent extends Agent {
 	}
 }
 
-class WordnetCyclicBehaviour extends CyclicBehaviour
-{
-	ServiceAgent agent;
-	public WordnetCyclicBehaviour(ServiceAgent agent)
-	{
-		this.agent = agent;
-	}
-	public void action()
-	{
-		MessageTemplate template = MessageTemplate.MatchOntology("wordnet");
-		ACLMessage message = agent.receive(template);
-		if (message == null)
-		{
-			block();
-		}
-		else
-		{
-			//process the incoming message
-			String content = message.getContent();
-			ACLMessage reply = message.createReply();
-			reply.setPerformative(ACLMessage.INFORM);
-			String response = "";
-			try
-			{
-				response = agent.makeRequest("wn",content);
-			}
-			catch (NumberFormatException ex)
-			{
-				response = ex.getMessage();
-			}
-			reply.setContent(response);
-			agent.send(reply);
-		}
-	}
-}
-
 class DictionaryCyclicBehaviour extends CyclicBehaviour
 {
 	ServiceAgent agent;
@@ -126,8 +86,7 @@ class DictionaryCyclicBehaviour extends CyclicBehaviour
 	}
 	public void action()
 	{
-		MessageTemplate template = MessageTemplate.MatchOntology("dictionary");
-		ACLMessage message = agent.receive(template);
+		ACLMessage message = agent.receive();
 		if (message == null)
 		{
 			block();
@@ -136,12 +95,13 @@ class DictionaryCyclicBehaviour extends CyclicBehaviour
 		{
 			//process the incoming message
 			String content = message.getContent();
+			String ontology = message.getOntology();
 			ACLMessage reply = message.createReply();
 			reply.setPerformative(ACLMessage.INFORM);
 			String response = "";
 			try
 			{
-				response = agent.makeRequest("english", content);
+				response = agent.makeRequest(ontology,content);
 			}
 			catch (NumberFormatException ex)
 			{
